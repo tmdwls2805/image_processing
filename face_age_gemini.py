@@ -56,13 +56,64 @@ class GeminiAgeTransformer:
             logger.error(f"Image load failed: {e}")
             return None, None
 
-    def transform_age(self, image_path, target_age_description="20살처럼 젊고 동안으로"):
+    def _get_fixed_requirements(self):
+        """나이 변환 시 항상 유지해야 하는 고정적인 요구사항"""
+        return """
+        ⚠️ 중요: 반드시 원본 인물의 얼굴 형태, 눈 모양, 코 형태, 입술 모양, 얼굴 윤곽을 정확히 유지해야 합니다.
+        다른 사람처럼 보이면 안 됩니다. 동일 인물이 나이만 든 것처럼 보여야 합니다.
+
+        고정 요구사항 (절대 변경 금지):
+        1. ✅ 얼굴 구조(뼈대), 눈·코·입 위치와 크기, 얼굴형, 눈썹 모양을 원본과 100% 동일하게 유지
+        2. ✅ 표정과 시선 방향도 원본과 동일하게 유지
+        3. ✅ 배경은 원본과 완전히 동일하게 유지
+        """
+
+    def _get_aging_effects(self, intensity="medium"):
+        """
+        나이에 따라 변하는 가변적인 효과
+
+        Args:
+            intensity: "light" (약간), "medium" (중간), "heavy" (강함)
+        """
+        effects = {
+            "light": """
+            가변 요구사항 (나이 효과 - 가볍게):
+            - 눈가와 입가에 약간의 잔주름 추가 (fine lines)
+            - 피부에 약간의 질감 추가
+            - 머리카락에 약간의 흰머리 추가 (10-20%)
+            """,
+            "medium": """
+            가변 요구사항 (나이 효과 - 중간):
+            - 이마, 눈가, 입가에 주름 추가 (crow's feet, forehead lines, nasolabial folds)
+            - 피부 탄력을 약간 줄이고 처진 느낌 추가 (slight sagging)
+            - 피부 톤을 조금 어둡고 칙칙하게 (age spots, uneven skin tone)
+            - 눈밑에 다크서클과 약간의 눈꺼풀 처짐 추가
+            - 머리카락에 흰머리 추가 (30-50%)
+            - 목에 약간의 주름 추가
+            - 피부 질감을 약간 거칠게 만들기
+            """,
+            "heavy": """
+            가변 요구사항 (나이 효과 - 강하게):
+            - 이마, 눈가, 입가에 깊은 주름 추가 (deep crow's feet, forehead lines, nasolabial folds)
+            - 피부 탄력을 크게 줄이고 처진 느낌 추가 (sagging skin, jowls)
+            - 피부 톤을 더 어둡고 칙칙하게 (prominent age spots, uneven skin tone)
+            - 눈밑에 두드러진 다크서클과 눈꺼풀 처짐 추가
+            - 머리카락에 많은 흰머리 추가하거나 머리숱 크게 감소 (60-80% gray/white hair, hair thinning)
+            - 목 주름과 목 처짐 추가 (neck wrinkles, turkey neck)
+            - 피부 질감을 거칠고 윤기 없게 만들기
+            - 피부에 검버섯이나 잡티 추가
+            """
+        }
+        return effects.get(intensity, effects["medium"])
+
+    def transform_age(self, image_path, target_age_description="20살처럼 젊고 동안으로", aging_intensity="medium"):
         """
         이미지의 얼굴을 지정된 나이로 변환
 
         Args:
             image_path: 입력 이미지 경로
-            target_age_description: 목표 나이 설명 (예: "20살처럼 젊고 동안으로", "30대 중반으로")
+            target_age_description: 목표 나이 설명 (예: "20살처럼 젊고 동안으로", "50대처럼 성숙하고 나이 들어 보이게")
+            aging_intensity: 나이 효과 강도 ("light", "medium", "heavy")
 
         Returns:
             생성된 이미지의 base64 데이터 또는 None
@@ -73,23 +124,15 @@ class GeminiAgeTransformer:
             if not image_data:
                 return None
 
-            # 프롬프트 생성
+            # 프롬프트 생성: 고정 부분 + 가변 부분
+            fixed_reqs = self._get_fixed_requirements()
+            aging_effects = self._get_aging_effects(aging_intensity)
+
             prompt = f"""이 사진 속 인물의 얼굴을 {target_age_description} 변환해주세요.
 
-            ⚠️ 중요: 반드시 원본 인물의 얼굴 형태, 눈 모양, 코 형태, 입술 모양, 얼굴 윤곽을 정확히 유지해야 합니다.
-            다른 사람처럼 보이면 안 됩니다. 동일 인물이 나이만 든 것처럼 보여야 합니다.
+            {fixed_reqs}
 
-            요구사항:
-            1. ✅ 얼굴 구조(뼈대), 눈·코·입 위치와 크기, 얼굴형, 눈썹 모양을 원본과 100% 동일하게 유지
-            2. ✅ 표정과 시선 방향도 원본과 동일하게 유지
-            3. 이마, 눈가, 입가에 깊은 주름 추가 (crow's feet, forehead lines, nasolabial folds)
-            4. 피부 탄력을 줄이고 약간 처진 느낌 추가 (sagging skin, jowls)
-            5. 피부 톤을 더 어둡고 칙칙하게 (age spots, uneven skin tone)
-            6. 눈밑에 다크서클과 눈꺼풀 처짐 추가
-            7. 머리카락에 흰머리 추가하거나 머리숱 감소 (gray/white hair, hair thinning)
-            8. 목 주름과 약간의 목 처짐 추가 (neck wrinkles)
-            9. 피부 질감을 거칠고 윤기 없게 만들기
-            10. ✅ 배경은 원본과 완전히 동일하게 유지
+            {aging_effects}
 
             자연스럽지만 명확하게 나이 들어 보이는 이미지를 생성해주세요.
             단, 얼굴의 핵심 특징(identity)은 절대 변경하지 마세요."""
