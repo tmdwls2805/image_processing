@@ -76,15 +76,23 @@ class GeminiAgeTransformer:
             # 프롬프트 생성
             prompt = f"""이 사진 속 인물의 얼굴을 {target_age_description} 변환해주세요.
 
-            요구사항:
-            1. 인물의 정체성과 기본적인 얼굴 특징은 유지해주세요
-            2. 피부를 더 매끄럽고 젊게 만들어주세요
-            3. 주름이나 잔주름을 줄여주세요
-            4. 자연스럽고 현실적인 결과를 만들어주세요
-            5. 얼굴 형태와 표정은 최대한 원본과 유사하게 유지해주세요
-            6. 배경은 원본과 동일하게 유지해주세요
+            ⚠️ 중요: 반드시 원본 인물의 얼굴 형태, 눈 모양, 코 형태, 입술 모양, 얼굴 윤곽을 정확히 유지해야 합니다.
+            다른 사람처럼 보이면 안 됩니다. 동일 인물이 나이만 든 것처럼 보여야 합니다.
 
-            변환된 이미지만 생성해주세요."""
+            요구사항:
+            1. ✅ 얼굴 구조(뼈대), 눈·코·입 위치와 크기, 얼굴형, 눈썹 모양을 원본과 100% 동일하게 유지
+            2. ✅ 표정과 시선 방향도 원본과 동일하게 유지
+            3. 이마, 눈가, 입가에 깊은 주름 추가 (crow's feet, forehead lines, nasolabial folds)
+            4. 피부 탄력을 줄이고 약간 처진 느낌 추가 (sagging skin, jowls)
+            5. 피부 톤을 더 어둡고 칙칙하게 (age spots, uneven skin tone)
+            6. 눈밑에 다크서클과 눈꺼풀 처짐 추가
+            7. 머리카락에 흰머리 추가하거나 머리숱 감소 (gray/white hair, hair thinning)
+            8. 목 주름과 약간의 목 처짐 추가 (neck wrinkles)
+            9. 피부 질감을 거칠고 윤기 없게 만들기
+            10. ✅ 배경은 원본과 완전히 동일하게 유지
+
+            자연스럽지만 명확하게 나이 들어 보이는 이미지를 생성해주세요.
+            단, 얼굴의 핵심 특징(identity)은 절대 변경하지 마세요."""
 
             print(f"[Generate] 이미지 생성 중...")
             print(f"[Prompt] {prompt}")
@@ -197,7 +205,7 @@ if __name__ == "__main__":
     print("=" * 50)
 
     # 나이 변환 실행
-    target_age_description = "20살처럼 젊고 동안으로"
+    target_age_description = "50대처럼 성숙하고 나이 들어 보이게"
     image_data = transformer.transform_age(input_image_path, target_age_description)
 
     if image_data:
