@@ -1,0 +1,37 @@
+{
+  "skin": {
+    "texture": "피부 질감이 거칠고 윤기 없음",
+    "wrinkles": "이마, 눈가, 입가에 깊은 주름 (deep crow's feet, forehead lines, nasolabial folds), 목 주름과 약간의 목 처짐",
+    "tone": "피부 톤이 더 어둡고 칙칙함 (age spots, uneven skin tone), 얼굴에 약간의 잡티",
+    "elasticity": "탄력 크게 감소, 처진 느낌 (sagging skin, jowls)"
+  },
+  "face_shape": {
+    "description": "중년의 얼굴",
+    "features": "눈밑에 다크서클과 눈꺼풀 처짐"
+  },
+  "hair": {
+    "condition": "머리카락 건강도 감소",
+    "color": "흰머리 30-50%",
+    "volume": "약간 감소"
+  },
+  "hands": {
+    "skin": "🔥 손 피부: 거칠고 윤기없는 50대 손",
+    "wrinkles": "🔥 손 주름: 손등 전체에 깊은 주름 많이 생김",
+    "veins": "🔥 손 혈관: 매우 두드러지고 튀어나옴",
+    "texture": "🔥 손 질감: 50대 나이든 손의 거친 질감"
+  },
+  "neck": {
+    "wrinkles": "목에 깊은 주름과 처짐",
+    "skin": "처진 목",
+    "appearance": "중년의 처진 목선"
+  },
+  "body_visible": {
+    "skin": "전체적으로 거칠고 윤기없는 피부",
+    "posture": "성숙하고 깊이있는 자세"
+  },
+  "expression": {
+    "eyes": "깊이있는 눈빛",
+    "overall": "인생 경험이 묻어나는 깊이있는 표정",
+    "age_feeling": "은퇴 설계 시작 세대의 성찰적 분위기"
+  }
+}

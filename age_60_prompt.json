@@ -1,0 +1,37 @@
+{
+  "skin": {
+    "texture": "피부 질감이 거칠고 윤기 없음",
+    "wrinkles": "이마, 눈가, 입가에 깊은 주름 (deep wrinkles), 목 주름과 목 처짐, 입술 주변 주름",
+    "tone": "피부 톤이 어둡고 칙칙함 (age spots, uneven skin tone), 검버섯이나 잡티",
+    "elasticity": "탄력 크게 감소, 처진 느낌 (sagging skin, jowls)"
+  },
+  "face_shape": {
+    "description": "노년 초입의 얼굴",
+    "features": "눈밑에 다크서클과 눈꺼풀 처짐"
+  },
+  "hair": {
+    "condition": "머리카락 건강도 크게 감소",
+    "color": "흰머리 60-70%",
+    "volume": "감소"
+  },
+  "hands": {
+    "skin": "🔥 손 피부: 매우 거칠고 윤기없는 60대 노년 손",
+    "wrinkles": "🔥 손 주름: 손등 전체에 깊고 많은 주름 - 손가락 관절 주름도 깊음",
+    "veins": "🔥 손 혈관: 매우 도드라지고 뼈가 보이는 느낌",
+    "texture": "🔥 손 질감: 60대 노년의 거칠고 마른 손"
+  },
+  "neck": {
+    "wrinkles": "목에 깊은 주름과 처짐",
+    "skin": "많이 처진 목",
+    "appearance": "노년의 처진 목선"
+  },
+  "body_visible": {
+    "skin": "전체적으로 거칠고 잡티 많은 노년 피부",
+    "posture": "지혜롭고 당당한 시니어 자세"
+  },
+  "expression": {
+    "eyes": "지혜로운 눈빛",
+    "overall": "활력있고 지혜로운 시니어의 당당한 표정",
+    "age_feeling": "액티브 시니어 재도약기의 자신감"
+  }
+}

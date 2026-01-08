@@ -1,0 +1,37 @@
+{
+  "skin": {
+    "texture": "피부 질감이 매우 거칠고 윤기 없음",
+    "wrinkles": "얼굴 전체에 깊고 많은 주름 (extensive deep wrinkles), 목에 깊은 주름과 처짐, 입술 주변 깊은 주름",
+    "tone": "피부 톤이 어둡고 칙칙함 (age spots, uneven skin tone), 많은 검버섯과 잡티",
+    "elasticity": "탄력이 거의 없고 크게 처진 느낌 (severe sagging, jowls)"
+  },
+  "face_shape": {
+    "description": "노년의 얼굴",
+    "features": "눈밑에 두드러진 다크서클과 처진 눈꺼풀, 입술이 약간 얇아짐, 귀와 코가 약간 커 보임"
+  },
+  "hair": {
+    "condition": "머리카락 매우 감소",
+    "color": "흰머리 80-90% 또는 대부분",
+    "volume": "크게 감소 (hair thinning)"
+  },
+  "hands": {
+    "skin": "🔥 손 피부: 매우 거칠고 마른 70대 노년 손",
+    "wrinkles": "🔥 손 주름: 손등 전체에 매우 깊고 많은 주름 - 손가락 전체 주름투성이",
+    "veins": "🔥 손 혈관: 혈관과 뼈가 매우 도드라지고 튀어나옴",
+    "texture": "🔥 손 질감: 70대 매우 늙고 마른 손"
+  },
+  "neck": {
+    "wrinkles": "목에 매우 깊은 주름과 심한 처짐",
+    "skin": "심하게 처진 목",
+    "appearance": "노년의 많이 처진 목선"
+  },
+  "body_visible": {
+    "skin": "전체적으로 매우 거칠고 많은 검버섯과 잡티",
+    "posture": "편안하고 온화한 노년 자세"
+  },
+  "expression": {
+    "eyes": "온화한 눈빛",
+    "overall": "편안하고 온화한 노년의 표정",
+    "age_feeling": "생활 안정기의 평온한 분위기"
+  }
+}

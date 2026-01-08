@@ -6,6 +6,7 @@ from PIL import Image
 from io import BytesIO
 import base64
 from dotenv import load_dotenv
+import json
 
 # .env 파일 로드
 load_dotenv()
@@ -68,115 +69,66 @@ class GeminiAgeTransformer:
         3. ✅ 배경은 원본과 완전히 동일하게 유지
         """
 
-    def _get_age_description(self, target_age):
-        """나이에 따른 설명 생성"""
-        if target_age < 20:
-            return f"{target_age}대 청소년기 학생의 매우 젊고 생기있는 모습으로"
-        elif target_age < 30:
-            return f"{target_age}대 대학생(사회 진입 준비기)의 젊고 활기찬 모습으로"
-        elif target_age < 40:
-            return f"{target_age}대 직장인 신입(커리어 정착기)의 성숙하고 자신감 있는 모습으로"
-        elif target_age < 50:
-            return f"{target_age}대 샌드위치 세대 실무 리더의 책임감 있는 모습으로"
-        elif target_age < 60:
-            return f"{target_age}대 은퇴 설계 시작 세대의 성숙한 중년 모습으로"
-        elif target_age < 70:
-            return f"{target_age}대 액티브 시니어 재도약기의 활력있는 노년 모습으로"
-        else:
-            return f"{target_age}대 생활 안정기(건강·관계 중심)의 편안한 노년 모습으로"
+    def _load_age_prompt(self, age):
+        """
+        age_X_prompt.json 파일에서 나이별 프롬프트 로드
+
+        Args:
+            age: 나이 (20, 30, 40, 50, 60, 70)
+
+        Returns:
+            dict: JSON 파일에서 로드한 프롬프트 데이터
+        """
+        filename = f"age_{age}_prompt.json"
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                prompt_data = json.load(f)
+            return prompt_data
+        except FileNotFoundError:
+            print(f"[Warning] {filename} 파일을 찾을 수 없습니다. 빈 프롬프트를 사용합니다.")
+            return {}
+        except json.JSONDecodeError as e:
+            print(f"[Error] {filename} 파싱 실패: {e}. 빈 프롬프트를 사용합니다.")
+            return {}
 
     def _get_aging_effects_by_age(self, target_age):
         """
-        나이에 따라 변하는 가변적인 효과
+        나이에 따라 변하는 가변적인 효과 (JSON 구조화)
 
         Args:
             target_age: 목표 나이 (10, 20, 30, 40, 50, 60, 70 등)
         """
-        age_effects = {
-            10: """
-            가변 요구사항 (10대 - 청소년기 학생):
-            - 매우 매끄럽고 탄력있는 피부
-            - 주름 없는 깨끗한 얼굴
-            - 밝고 생기있는 피부 톤
-            - 윤기있고 풍성한 머리카락
-            - 청소년의 순수하고 풋풋한 느낌
-            - 얼굴에 약간의 통통함 유지
-            """,
-            20: """
-            가변 요구사항 (20대 - 대학생/사회 진입 준비기):
-            - 매끄럽고 탄력있는 피부
-            - 거의 주름 없는 얼굴
-            - 밝고 건강한 피부 톤
-            - 윤기있고 풍성한 머리카락
-            - 눈가에 아주 미세한 웃음 주름만 있을 수 있음
-            - 젊고 활기찬 표정
-            - 도전적이고 희망찬 분위기
-            """,
-            30: """
-            가변 요구사항 (30대 - 직장인 신입/커리어 정착기):
-            - 눈가와 입가에 약간의 잔주름 추가 (fine lines)
-            - 여전히 탄력있지만 20대보다는 약간 덜한 피부
-            - 건강한 피부 톤 유지
-            - 머리카락에 극히 일부 흰머리 추가 (5% 이하)
-            - 이마에 아주 약한 표정 주름
-            - 약간 날카로워진 턱선
-            - 성숙하고 전문적인 느낌
-            """,
-            40: """
-            가변 요구사항 (40대 - 샌드위치 세대 실무 리더):
-            - 이마, 눈가, 입가에 주름 추가 (crow's feet, forehead lines, nasolabial folds)
-            - 피부 탄력을 약간 줄이고 처진 느낌 추가 (slight sagging)
-            - 피부 톤을 조금 어둡고 칙칙하게 (age spots, uneven skin tone)
-            - 눈밑에 약간의 다크서클과 눈꺼풀 처짐 추가 (피로 누적)
-            - 머리카락에 흰머리 추가 (10-20%)
-            - 목에 약간의 주름 추가
-            - 피부 질감을 약간 거칠게 만들기
-            - 책임감과 경험이 묻어나는 성숙한 표정
-            """,
-            50: """
-            가변 요구사항 (50대 - 은퇴 설계 시작 세대):
-            - 이마, 눈가, 입가에 깊은 주름 추가 (deep crow's feet, forehead lines, nasolabial folds)
-            - 피부 탄력을 줄이고 처진 느낌 추가 (sagging skin, jowls)
-            - 피부 톤을 더 어둡고 칙칙하게 (age spots, uneven skin tone)
-            - 눈밑에 다크서클과 눈꺼풀 처짐 추가
-            - 머리카락에 흰머리 추가 (30-50%)
-            - 목 주름과 약간의 목 처짐 추가 (neck wrinkles)
-            - 피부 질감을 거칠고 윤기 없게 만들기
-            - 얼굴에 약간의 잡티 추가
-            - 인생 경험이 묻어나는 깊이있는 표정
-            """,
-            60: """
-            가변 요구사항 (60대 - 액티브 시니어 재도약기):
-            - 이마, 눈가, 입가에 깊은 주름 추가 (deep wrinkles)
-            - 피부 탄력을 줄이고 처진 느낌 추가 (sagging skin, jowls)
-            - 피부 톤을 어둡고 칙칙하게 (age spots, uneven skin tone)
-            - 눈밑에 다크서클과 눈꺼풀 처짐 추가
-            - 머리카락에 많은 흰머리 추가 (60-70% gray/white hair)
-            - 목 주름과 목 처짐 추가 (neck wrinkles)
-            - 피부 질감을 거칠고 윤기 없게 만들기
-            - 피부에 검버섯이나 잡티 추가
-            - 입술 주변 주름 추가
-            - 활력있고 지혜로운 시니어의 당당한 표정
-            """,
-            70: """
-            가변 요구사항 (70대 - 생활 안정기/건강·관계 중심):
-            - 얼굴 전체에 깊고 많은 주름 추가 (extensive deep wrinkles)
-            - 피부 탄력이 크게 줄고 처진 느낌 (sagging, jowls)
-            - 피부 톤을 어둡고 칙칙하게 (age spots, uneven skin tone)
-            - 눈밑에 두드러진 다크서클과 처진 눈꺼풀
-            - 머리카락 대부분 흰머리 또는 머리숱 감소 (80-90% gray/white hair, hair thinning)
-            - 목에 깊은 주름과 처짐 (neck wrinkles)
-            - 피부 질감을 거칠고 윤기 없게 만들기
-            - 피부에 검버섯과 잡티 추가
-            - 입술이 약간 얇아지고 주변에 주름
-            - 귀와 코가 약간 커 보이게
-            - 편안하고 온화한 노년의 표정
-            """
+        age_effects_json = {
+            10: self._load_age_prompt(10),
+            20: self._load_age_prompt(20),
+            30: self._load_age_prompt(30),
+            40: self._load_age_prompt(40),
+            50: self._load_age_prompt(50),
+            60: self._load_age_prompt(60),
+            70: self._load_age_prompt(70)
         }
 
         # 정확히 일치하는 나이가 없으면 가장 가까운 나이 찾기
-        closest_age = min(age_effects.keys(), key=lambda x: abs(x - target_age))
-        return age_effects[closest_age]
+        closest_age = min(age_effects_json.keys(), key=lambda x: abs(x - target_age))
+        age_data = age_effects_json[closest_age]
+
+        # JSON을 구조화된 프롬프트로 변환
+        return self._json_to_prompt(age_data, target_age)
+
+    def _json_to_prompt(self, age_data, target_age):
+        """JSON 데이터를 프롬프트로 변환 (JSON 문자열 형태)"""
+        # JSON을 보기 좋게 들여쓰기해서 문자열로 변환
+        json_str = json.dumps(age_data, ensure_ascii=False, indent=2)
+
+        # 프롬프트 생성
+        prompt = f"""
+🎯 목표: {target_age}대 특성 반영
+
+다음 JSON 사양에 따라 변환하세요:
+
+{json_str}
+"""
+        return prompt
 
     def transform_age(self, image_path, target_age):
         """
@@ -196,12 +148,11 @@ class GeminiAgeTransformer:
                 return None
 
             # 나이에 따른 설명 및 효과 생성
-            age_description = self._get_age_description(target_age)
             aging_effects = self._get_aging_effects_by_age(target_age)
             fixed_reqs = self._get_fixed_requirements()
 
             # 프롬프트 생성: 고정 부분 + 가변 부분
-            prompt = f"""이 사진 속 인물의 얼굴을 {age_description} 변환해주세요.
+            prompt = f"""이 사진 속 인물을 변환해주세요.
 
             {fixed_reqs}
 
@@ -211,7 +162,6 @@ class GeminiAgeTransformer:
             단, 얼굴의 핵심 특징(identity)은 절대 변경하지 마세요."""
 
             print(f"[Generate] 이미지 생성 중...")
-            print(f"[Prompt] {prompt}")
 
             # 이미지 생성 요청 (인라인 데이터 사용)
             response = self.client.models.generate_content(
@@ -237,7 +187,6 @@ class GeminiAgeTransformer:
                 )
             )
 
-            print(f"[Response] 응답 받음")
 
             # 응답 처리
             if response and response.candidates:
@@ -308,7 +257,7 @@ if __name__ == "__main__":
     transformer = GeminiAgeTransformer(api_key=api_key)
 
     # 입력 이미지 경로 설정
-    input_image_path = "man_face.jpeg"
+    input_image_path = "old_man.jpg"
 
     # 이미지 파일 존재 확인
     if not os.path.exists(input_image_path):
@@ -316,12 +265,8 @@ if __name__ == "__main__":
         print("사용법: 이미지 파일을 준비하고 input_image_path 변수를 수정하세요")
         exit(1)
 
-    print("=" * 50)
-    print("Gemini 얼굴 나이 변환 시작")
-    print("=" * 50)
-
     # 나이 변환 실행
-    target_age = 70  # 10, 20, 30, 40, 50, 60, 70 중 선택
+    target_age = 10  # 10, 20, 30, 40, 50, 60, 70 중 선택
 
     print(f"[설정] 목표 나이: {target_age}세")
 
@@ -336,9 +281,7 @@ if __name__ == "__main__":
         success = transformer.save_image(image_data, output_path)
 
         if success:
-            print("\n" + "=" * 50)
             print(f"변환 완료! 결과 이미지: {output_path}")
-            print("=" * 50)
         else:
             print("\n[Error] 이미지 저장에 실패했습니다")
     else:
