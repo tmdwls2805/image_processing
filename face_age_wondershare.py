@@ -4,6 +4,8 @@ import time
 import json
 import os
 from dotenv import load_dotenv
+from PIL import Image
+from io import BytesIO
 
 # .env 파일 로드
 load_dotenv()   
@@ -114,6 +116,27 @@ class WondershareAgeAPI:
         print("[Timeout] 최대 재시도 횟수 초과")
         return None
 
+    def save_image_as_webp(self, image_url, output_path):
+        """
+        이미지 URL에서 다운로드하여 WebP 형식으로 저장합니다.
+        """
+        try:
+            print(f"[Download] 이미지 다운로드 중: {image_url}")
+            response = requests.get(image_url, timeout=30)
+            response.raise_for_status()
+
+            # 이미지를 메모리에 로드
+            img = Image.open(BytesIO(response.content))
+
+            # WebP로 저장
+            img.save(output_path, 'WEBP', quality=90)
+            print(f"[Saved] 이미지 저장 완료: {output_path}")
+            return True
+
+        except Exception as e:
+            print(f"[Error] 이미지 저장 실패: {e}")
+            return False
+
 if __name__ == "__main__":
     # 1. 환경변수에서 키 가져오기
     APP_KEY = os.getenv("AI_LAB_APP_KEY")       
@@ -129,7 +152,7 @@ if __name__ == "__main__":
     IMAGE_URLS = ["https://media.helloeveryoung.com/test/hello2.jpg"]
     
     # 3. 목표 나이 설정
-    TARGET_AGE = 60
+    TARGET_AGE = 1
     
     api = WondershareAgeAPI(APP_KEY, APP_SECRET)
     
@@ -143,6 +166,15 @@ if __name__ == "__main__":
         
         if results:
             print("\n--- 결과 ---")
-            for item in results:
-                print(f"원본 이미지: {item.get('image_url')}")
-                print(f"변환된 이미지: {item.get('image_result')}")
+            # result 디렉토리 생성 (없으면)
+            os.makedirs("result", exist_ok=True)
+
+            for idx, item in enumerate(results):
+                print(f"\n[{idx+1}] 원본 이미지: {item.get('image_url')}")
+                print(f"[{idx+1}] 변환된 이미지: {item.get('image_result')}")
+
+                # 변환된 이미지를 webp로 저장
+                image_result_url = item.get('image_result')
+                if image_result_url:
+                    output_filename = f"result/age_{TARGET_AGE}_result_{idx+1}.webp"
+                    api.save_image_as_webp(image_result_url, output_filename)
