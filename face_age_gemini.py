@@ -68,52 +68,123 @@ class GeminiAgeTransformer:
         3. ✅ 배경은 원본과 완전히 동일하게 유지
         """
 
-    def _get_aging_effects(self, intensity="medium"):
+    def _get_age_description(self, target_age):
+        """나이에 따른 설명 생성"""
+        if target_age < 20:
+            return f"{target_age}대 청소년기 학생의 매우 젊고 생기있는 모습으로"
+        elif target_age < 30:
+            return f"{target_age}대 대학생(사회 진입 준비기)의 젊고 활기찬 모습으로"
+        elif target_age < 40:
+            return f"{target_age}대 직장인 신입(커리어 정착기)의 성숙하고 자신감 있는 모습으로"
+        elif target_age < 50:
+            return f"{target_age}대 샌드위치 세대 실무 리더의 책임감 있는 모습으로"
+        elif target_age < 60:
+            return f"{target_age}대 은퇴 설계 시작 세대의 성숙한 중년 모습으로"
+        elif target_age < 70:
+            return f"{target_age}대 액티브 시니어 재도약기의 활력있는 노년 모습으로"
+        else:
+            return f"{target_age}대 생활 안정기(건강·관계 중심)의 편안한 노년 모습으로"
+
+    def _get_aging_effects_by_age(self, target_age):
         """
         나이에 따라 변하는 가변적인 효과
 
         Args:
-            intensity: "light" (약간), "medium" (중간), "heavy" (강함)
+            target_age: 목표 나이 (10, 20, 30, 40, 50, 60, 70 등)
         """
-        effects = {
-            "light": """
-            가변 요구사항 (나이 효과 - 가볍게):
-            - 눈가와 입가에 약간의 잔주름 추가 (fine lines)
-            - 피부에 약간의 질감 추가
-            - 머리카락에 약간의 흰머리 추가 (10-20%)
+        age_effects = {
+            10: """
+            가변 요구사항 (10대 - 청소년기 학생):
+            - 매우 매끄럽고 탄력있는 피부
+            - 주름 없는 깨끗한 얼굴
+            - 밝고 생기있는 피부 톤
+            - 윤기있고 풍성한 머리카락
+            - 청소년의 순수하고 풋풋한 느낌
+            - 얼굴에 약간의 통통함 유지
             """,
-            "medium": """
-            가변 요구사항 (나이 효과 - 중간):
+            20: """
+            가변 요구사항 (20대 - 대학생/사회 진입 준비기):
+            - 매끄럽고 탄력있는 피부
+            - 거의 주름 없는 얼굴
+            - 밝고 건강한 피부 톤
+            - 윤기있고 풍성한 머리카락
+            - 눈가에 아주 미세한 웃음 주름만 있을 수 있음
+            - 젊고 활기찬 표정
+            - 도전적이고 희망찬 분위기
+            """,
+            30: """
+            가변 요구사항 (30대 - 직장인 신입/커리어 정착기):
+            - 눈가와 입가에 약간의 잔주름 추가 (fine lines)
+            - 여전히 탄력있지만 20대보다는 약간 덜한 피부
+            - 건강한 피부 톤 유지
+            - 머리카락에 극히 일부 흰머리 추가 (5% 이하)
+            - 이마에 아주 약한 표정 주름
+            - 약간 날카로워진 턱선
+            - 성숙하고 전문적인 느낌
+            """,
+            40: """
+            가변 요구사항 (40대 - 샌드위치 세대 실무 리더):
             - 이마, 눈가, 입가에 주름 추가 (crow's feet, forehead lines, nasolabial folds)
             - 피부 탄력을 약간 줄이고 처진 느낌 추가 (slight sagging)
             - 피부 톤을 조금 어둡고 칙칙하게 (age spots, uneven skin tone)
-            - 눈밑에 다크서클과 약간의 눈꺼풀 처짐 추가
-            - 머리카락에 흰머리 추가 (30-50%)
+            - 눈밑에 약간의 다크서클과 눈꺼풀 처짐 추가 (피로 누적)
+            - 머리카락에 흰머리 추가 (10-20%)
             - 목에 약간의 주름 추가
             - 피부 질감을 약간 거칠게 만들기
+            - 책임감과 경험이 묻어나는 성숙한 표정
             """,
-            "heavy": """
-            가변 요구사항 (나이 효과 - 강하게):
+            50: """
+            가변 요구사항 (50대 - 은퇴 설계 시작 세대):
             - 이마, 눈가, 입가에 깊은 주름 추가 (deep crow's feet, forehead lines, nasolabial folds)
-            - 피부 탄력을 크게 줄이고 처진 느낌 추가 (sagging skin, jowls)
-            - 피부 톤을 더 어둡고 칙칙하게 (prominent age spots, uneven skin tone)
-            - 눈밑에 두드러진 다크서클과 눈꺼풀 처짐 추가
-            - 머리카락에 많은 흰머리 추가하거나 머리숱 크게 감소 (60-80% gray/white hair, hair thinning)
-            - 목 주름과 목 처짐 추가 (neck wrinkles, turkey neck)
+            - 피부 탄력을 줄이고 처진 느낌 추가 (sagging skin, jowls)
+            - 피부 톤을 더 어둡고 칙칙하게 (age spots, uneven skin tone)
+            - 눈밑에 다크서클과 눈꺼풀 처짐 추가
+            - 머리카락에 흰머리 추가 (30-50%)
+            - 목 주름과 약간의 목 처짐 추가 (neck wrinkles)
+            - 피부 질감을 거칠고 윤기 없게 만들기
+            - 얼굴에 약간의 잡티 추가
+            - 인생 경험이 묻어나는 깊이있는 표정
+            """,
+            60: """
+            가변 요구사항 (60대 - 액티브 시니어 재도약기):
+            - 이마, 눈가, 입가에 깊은 주름 추가 (deep wrinkles)
+            - 피부 탄력을 줄이고 처진 느낌 추가 (sagging skin, jowls)
+            - 피부 톤을 어둡고 칙칙하게 (age spots, uneven skin tone)
+            - 눈밑에 다크서클과 눈꺼풀 처짐 추가
+            - 머리카락에 많은 흰머리 추가 (60-70% gray/white hair)
+            - 목 주름과 목 처짐 추가 (neck wrinkles)
             - 피부 질감을 거칠고 윤기 없게 만들기
             - 피부에 검버섯이나 잡티 추가
+            - 입술 주변 주름 추가
+            - 활력있고 지혜로운 시니어의 당당한 표정
+            """,
+            70: """
+            가변 요구사항 (70대 - 생활 안정기/건강·관계 중심):
+            - 얼굴 전체에 깊고 많은 주름 추가 (extensive deep wrinkles)
+            - 피부 탄력이 크게 줄고 처진 느낌 (sagging, jowls)
+            - 피부 톤을 어둡고 칙칙하게 (age spots, uneven skin tone)
+            - 눈밑에 두드러진 다크서클과 처진 눈꺼풀
+            - 머리카락 대부분 흰머리 또는 머리숱 감소 (80-90% gray/white hair, hair thinning)
+            - 목에 깊은 주름과 처짐 (neck wrinkles)
+            - 피부 질감을 거칠고 윤기 없게 만들기
+            - 피부에 검버섯과 잡티 추가
+            - 입술이 약간 얇아지고 주변에 주름
+            - 귀와 코가 약간 커 보이게
+            - 편안하고 온화한 노년의 표정
             """
         }
-        return effects.get(intensity, effects["medium"])
 
-    def transform_age(self, image_path, target_age_description="20살처럼 젊고 동안으로", aging_intensity="medium"):
+        # 정확히 일치하는 나이가 없으면 가장 가까운 나이 찾기
+        closest_age = min(age_effects.keys(), key=lambda x: abs(x - target_age))
+        return age_effects[closest_age]
+
+    def transform_age(self, image_path, target_age):
         """
         이미지의 얼굴을 지정된 나이로 변환
 
         Args:
             image_path: 입력 이미지 경로
-            target_age_description: 목표 나이 설명 (예: "20살처럼 젊고 동안으로", "50대처럼 성숙하고 나이 들어 보이게")
-            aging_intensity: 나이 효과 강도 ("light", "medium", "heavy")
+            target_age: 목표 나이 (숫자, 예: 10, 20, 30, 40, 50, 60, 70)
 
         Returns:
             생성된 이미지의 base64 데이터 또는 None
@@ -124,17 +195,19 @@ class GeminiAgeTransformer:
             if not image_data:
                 return None
 
-            # 프롬프트 생성: 고정 부분 + 가변 부분
+            # 나이에 따른 설명 및 효과 생성
+            age_description = self._get_age_description(target_age)
+            aging_effects = self._get_aging_effects_by_age(target_age)
             fixed_reqs = self._get_fixed_requirements()
-            aging_effects = self._get_aging_effects(aging_intensity)
 
-            prompt = f"""이 사진 속 인물의 얼굴을 {target_age_description} 변환해주세요.
+            # 프롬프트 생성: 고정 부분 + 가변 부분
+            prompt = f"""이 사진 속 인물의 얼굴을 {age_description} 변환해주세요.
 
             {fixed_reqs}
 
             {aging_effects}
 
-            자연스럽지만 명확하게 나이 들어 보이는 이미지를 생성해주세요.
+            자연스럽지만 명확하게 {target_age}세처럼 보이는 이미지를 생성해주세요.
             단, 얼굴의 핵심 특징(identity)은 절대 변경하지 마세요."""
 
             print(f"[Generate] 이미지 생성 중...")
@@ -248,8 +321,11 @@ if __name__ == "__main__":
     print("=" * 50)
 
     # 나이 변환 실행
-    target_age_description = "50대처럼 성숙하고 나이 들어 보이게"
-    image_data = transformer.transform_age(input_image_path, target_age_description)
+    target_age = 70  # 10, 20, 30, 40, 50, 60, 70 중 선택
+
+    print(f"[설정] 목표 나이: {target_age}세")
+
+    image_data = transformer.transform_age(input_image_path, target_age)
 
     if image_data:
         # result 디렉토리 생성
