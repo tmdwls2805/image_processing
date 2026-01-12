@@ -120,11 +120,11 @@ class GeminiAgeTransformer:
         # 프롬프트 생성
         prompt = f"""🎯 목표: {target_age}세로 변환
 
-다음 JSON 사양에 따라 정확하게 변환하세요:
+        다음 JSON 사양에 따라 정확하게 변환하세요:
 
-{json_str}
+        {json_str}
 
-매우 중요: 위 사양을 정확히 따라 {target_age}세처럼 보이도록 변환하세요."""
+        매우 중요: 위 사양을 정확히 따라 {target_age}세처럼 보이도록 변환하세요."""
         return prompt
 
     def transform_age(self, image_path, target_age):
@@ -151,12 +151,12 @@ class GeminiAgeTransformer:
             # 프롬프트 생성: 고정 부분 + 가변 부분
             prompt = f"""Transform this person in the image.
 
-{fixed_reqs}
+            {fixed_reqs}
 
-{aging_effects}
+            {aging_effects}
 
-Generate an image where this person clearly and obviously looks exactly {target_age} years old.
-The transformation should be dramatic and convincing."""
+            Generate an image where this person clearly and obviously looks exactly {target_age} years old.
+            The transformation should be dramatic and convincing."""
 
             print(f"[Generate] 이미지 생성 중...")
 
