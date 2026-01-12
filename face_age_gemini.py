@@ -59,15 +59,12 @@ class GeminiAgeTransformer:
 
     def _get_fixed_requirements(self):
         """나이 변환 시 항상 유지해야 하는 고정적인 요구사항"""
-        return """
-        ⚠️ 중요: 반드시 원본 인물의 얼굴 형태, 눈 모양, 코 형태, 입술 모양, 얼굴 윤곽을 정확히 유지해야 합니다.
-        다른 사람처럼 보이면 안 됩니다. 동일 인물이 나이만 든 것처럼 보여야 합니다.
-
-        고정 요구사항 (절대 변경 금지):
-        1. ✅ 얼굴 구조(뼈대), 눈·코·입 위치와 크기, 얼굴형, 눈썹 모양을 원본과 100% 동일하게 유지
-        2. ✅ 표정과 시선 방향도 원본과 동일하게 유지
-        3. ✅ 배경은 원본과 완전히 동일하게 유지
-        """
+        return """IMPORTANT: Maintain the person's identity while transforming their age.
+        - Keep the same basic face shape, facial bone structure, and overall proportions
+        - Keep the same expression and gaze direction
+        - Keep the background unchanged
+        - The result should look like the SAME PERSON, just at a different age
+        - However, transform ALL age-related features dramatically (skin, wrinkles, hair, etc.)"""
 
     def _load_age_prompt(self, age):
         """
@@ -121,13 +118,13 @@ class GeminiAgeTransformer:
         json_str = json.dumps(age_data, ensure_ascii=False, indent=2)
 
         # 프롬프트 생성
-        prompt = f"""
-🎯 목표: {target_age}대 특성 반영
+        prompt = f"""🎯 목표: {target_age}세로 변환
 
-다음 JSON 사양에 따라 변환하세요:
+다음 JSON 사양에 따라 정확하게 변환하세요:
 
 {json_str}
-"""
+
+매우 중요: 위 사양을 정확히 따라 {target_age}세처럼 보이도록 변환하세요."""
         return prompt
 
     def transform_age(self, image_path, target_age):
@@ -152,14 +149,14 @@ class GeminiAgeTransformer:
             fixed_reqs = self._get_fixed_requirements()
 
             # 프롬프트 생성: 고정 부분 + 가변 부분
-            prompt = f"""이 사진 속 인물을 변환해주세요.
+            prompt = f"""Transform this person in the image.
 
-            {fixed_reqs}
+{fixed_reqs}
 
-            {aging_effects}
+{aging_effects}
 
-            자연스럽지만 명확하게 {target_age}세처럼 보이는 이미지를 생성해주세요.
-            단, 얼굴의 핵심 특징(identity)은 절대 변경하지 마세요."""
+Generate an image where this person clearly and obviously looks exactly {target_age} years old.
+The transformation should be dramatic and convincing."""
 
             print(f"[Generate] 이미지 생성 중...")
 
@@ -179,9 +176,9 @@ class GeminiAgeTransformer:
                     )
                 ],
                 config=types.GenerateContentConfig(
-                    temperature=0.4,
+                    temperature=0.8,
                     top_p=0.95,
-                    top_k=20,
+                    top_k=40,
                     max_output_tokens=8192,
                     response_modalities=["IMAGE"]
                 )
@@ -266,7 +263,7 @@ if __name__ == "__main__":
         exit(1)
 
     # 나이 변환 실행
-    target_age = 10  # 10, 20, 30, 40, 50, 60, 70 중 선택
+    target_age = 20  # 10, 20, 30, 40, 50, 60, 70 중 선택
 
     print(f"[설정] 목표 나이: {target_age}세")
 
